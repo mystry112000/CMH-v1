@@ -3810,7 +3810,7 @@ end
 --- @field DecompileJobless boolean -- Includes already decompiled code in the output. No new scripts are decompiled. ___Default:___ false
 --- @field SaveBytecode boolean -- Includes bytecode in the output. Useful if you wish to be able to decompile it yourself later. Respects **@DecompileIgnore**. ___Default:___ false
 --- .DecompileIgnore {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name}} -- Ignores matched instances and their descendants by default. To ignore only the instance itself, set the value to `false`. Examples: `"Chat"` matches any instance with ClassName "Chat"; `Players = {"MyPlayerName"}` matches class "Players" AND name "MyPlayerName" only; `workspace` matches a specific instance by reference; `[workspace] = false` matches a specific instance by reference, ignoring only itself and not its descendants. ___Default:___ {} (nothing is ignored)
---- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name | false}} -- Structure mirrors **@DecompileIgnore**, except `false` means keep the instance but ignore its descendants. Supports both instance references and ClassName strings. Examples: `"CoreGui"` skips entirely; `CorePackages = false` keeps the instance but skips its descendants; `Players = {"SomePlayer"}` skips a specific named instance with specific ClassName. ___Default:___ {CoreGui, CorePackages, Players, Packages = false}
+--- .IgnoreList {Instance | Instance.ClassName | [Instance.ClassName] = {Instance.Name | false}} -- Structure mirrors **@DecompileIgnore**, except `false` means keep the instance but ignore its descendants. Supports both instance references and ClassName strings. Examples: `"CoreGui"` skips entirely; `CorePackages = false` keeps the instance but skips its descendants; `Players = {"SomePlayer"}` skips a specific named instance with specific ClassName. ___Default:___ {CoreGui, CorePackages, Packages = false}
 --- .ExtraInstances {Instance} -- If used with any invalid mode (like "invalidmode") it will only save these instances. ___Default:___ {}
 --- @field IgnoreProperties table -- Ignores properties by Name. ___Default:___ {}
 --- @field SaveCacheInterval number -- The less the value the more often it saves, but that would mean less performance due to constantly saving. XML Only. ___Default:___ 0x1600 * 10
@@ -3934,7 +3934,7 @@ local function copymaphub(CustomOptions, CustomOptions2)
 
 		IgnoreProperties = {},
 
-		IgnoreList = { "CoreGui", "CorePackages", "Players", Packages = false },
+		IgnoreList = { "CoreGui", "CorePackages", Packages = false },
 
 		ExtraInstances = {},
 		NilInstances = false,
