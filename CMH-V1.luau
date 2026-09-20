@@ -3906,6 +3906,7 @@ local function copymaphub(CustomOptions, CustomOptions2)
 	local totalsize = 0
 
 	local StatusText
+	local statusCount = 0
 
 	local OPTIONS = {
 		mode = "optimized",
@@ -5683,6 +5684,11 @@ local function copymaphub(CustomOptions, CustomOptions2)
 					continue -- filtered out by collect
 				end
 
+				statusCount += 1
+				if StatusText and statusCount % 25 == 1 then
+					StatusText.Text = string.format("Saving %d.. %s", statusCount, tostring(instance))
+				end
+
 				savebuffer[savebuffer_size] = ReturnItem(entry.tag, instance)
 				savebuffer_size += 1
 
@@ -6299,42 +6305,81 @@ local function copymaphub(CustomOptions, CustomOptions2)
 		IgnoreList.Players = false
 	end
 
-	if OPTIONS.ShowStatus then
-		do
-			local Exists = GLOBAL_ENV.CMH_statustext
-			if Exists then
-				Exists:Destroy()
+if OPTIONS.ShowStatus then
+			do
+				local Exists = GLOBAL_ENV.CMH_statustext
+				if Exists then
+					Exists:Destroy()
+				end
 			end
-		end
 
-		local StatusGui = Instance.new("ScreenGui")
+			local StatusGui = Instance.new("ScreenGui")
 
-		GLOBAL_ENV.CMH_statustext = StatusGui
+			GLOBAL_ENV.CMH_statustext = StatusGui
 
-		StatusGui.DisplayOrder = 2e9
-		pcall(function() -- ? Compatibility with level 2
-			StatusGui.OnTopOfCoreBlur = true
-		end)
+			StatusGui.DisplayOrder = 2e9
+			pcall(function() -- ? Compatibility with level 2
+				StatusGui.OnTopOfCoreBlur = true
+			end)
 
-		StatusText = Instance.new("TextLabel")
+			local StatusPill = Instance.new("Frame")
+			StatusPill.Size = UDim2.new(0, 200, 0, 40)
+			StatusPill.Position = UDim2.new(1, -10, 1, -10)
+			StatusPill.AnchorPoint = Vector2.new(1, 1)
+			StatusPill.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+			StatusPill.BackgroundTransparency = 0.15
+			StatusPill.Parent = StatusGui
 
-		StatusText.Text = "Saving..."
+			local StatusCorner = Instance.new("UICorner")
+			StatusCorner.CornerRadius = UDim.new(0, 8)
+			StatusCorner.Parent = StatusPill
 
-		StatusText.BackgroundTransparency = 1
-		StatusText.Font = Enum.Font.Code
-		StatusText.AnchorPoint = Vector2.new(1)
-		StatusText.Position = UDim2.new(1)
-		StatusText.Size = UDim2.new(0.3, 0, 0, 20)
+			local StatusStroke = Instance.new("UIStroke")
+			StatusStroke.Color = Color3.new(1, 1, 1)
+			StatusStroke.Transparency = 0.85
+			StatusStroke.Thickness = 1
+			StatusStroke.Parent = StatusPill
 
-		StatusText.TextColor3 = Color3.new(1, 1, 1)
-		StatusText.TextScaled = true
-		StatusText.TextStrokeTransparency = 0.7
-		StatusText.TextXAlignment = Enum.TextXAlignment.Right
-		StatusText.TextYAlignment = Enum.TextYAlignment.Top
+			local StatusDot = Instance.new("Frame")
+			StatusDot.Size = UDim2.new(0, 8, 0, 8)
+			StatusDot.Position = UDim2.new(0, 14, 0.5, -4)
+			StatusDot.AnchorPoint = Vector2.new(0, 0.5)
+			StatusDot.BackgroundColor3 = Color3.new(0.3, 0.9, 1)
+			StatusDot.Parent = StatusPill
 
-		StatusText.Parent = StatusGui
+			local StatusDotCorner = Instance.new("UICorner")
+			StatusDotCorner.CornerRadius = UDim.new(1, 0)
+			StatusDotCorner.Parent = StatusDot
 
-		local function randomString()
+			StatusText = Instance.new("TextLabel")
+			StatusText.Text = "Saving..."
+			StatusText.BackgroundTransparency = 1
+			StatusText.Font = Enum.Font.GothamMedium
+			StatusText.TextSize = 14
+			StatusText.TextScaled = true
+			StatusText.TextColor3 = Color3.new(1, 1, 1)
+			StatusText.TextStrokeTransparency = 0.9
+			StatusText.TextXAlignment = Enum.TextXAlignment.Left
+			StatusText.Size = UDim2.new(1, -32, 1, 0)
+			StatusText.Position = UDim2.new(0, 32, 0, 0)
+			StatusText.Parent = StatusPill
+
+			local async = task and task.spawn or coroutine.wrap
+			local sleep = task and task.wait or function() coroutine.yield() end
+			async(function() -- pulse the status dot
+				local frames = {".", "..", "..."}
+				local i = 0
+				while StatusPill.Parent do
+					i = i % #frames + 1
+					StatusDot.BackgroundColor3 = (i % 2 == 0) and Color3.new(0.6, 1, 1) or Color3.new(0.3, 0.9, 1)
+					if StatusText.Text == "Saving..." then
+						StatusText.Text = "Saving" .. frames[i]
+					end
+					sleep(0.4)
+				end
+			end)
+
+			local function randomString()
 			local length = math.random(10, 20)
 			local randomarray = table.create(length)
 			for i = 1, length do
@@ -7453,7 +7498,13 @@ return {
 				warn(err)
 				task.wait(Log10 + ExtraTime)
 			end
-			StatusText:Destroy()
+			pcall(function()
+				local Gui = GLOBAL_ENV.CMH_statustext
+				if Gui then
+					Gui:Destroy()
+				end
+				GLOBAL_ENV.CMH_statustext = nil
+			end)
 		end)
 	end
 
