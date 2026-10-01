@@ -1,12 +1,4 @@
---!native
 --!optimize 2
---!divine-intellect
--- https://discord.gg/aCkeGNFhQ
--- COPYMAP-HUB
--- Based on UniversalSynSaveInstance (https://github.com/luau/UniversalSynSaveInstance), AGPL-3.0.
--- Modified: renamed to COPYMAP-HUB; StreamBuffer, UniversalMethodFinder, Base64 and llz4 inlined.
--- Distributed under the GNU AGPL-3.0; see LICENSE.
-
 local function string_find(s, pattern, init)
 	return string.find(s, pattern, init, true)
 end
